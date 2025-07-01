@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
+import { EVENTS } from '../services/wsService.ts';
 
 export const UserSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
@@ -19,14 +20,16 @@ export const MessageSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
   senderId: z.string().min(1, 'Sender ID is required'),
   receiverId: z.string().min(1, 'Receiver ID is required').optional(),
-  payload: z.string().min(1, 'Message payload is required'),
+  payload: z.string().min(1, 'Message payload is required').optional(),
   timestamp: z.date(),
   status: z.enum(['pending', 'delivered']).default('pending'),
   groupId: z.string().uuid().optional(),
-  expireAt: z.date().optional().default(() => new Date(Date.now() + 90 * 24 * 60 * 60 * 1000))
-}).refine((data) => {
-  return (!!data.groupId && !data.receiverId) || (!data.groupId && !!data.receiverId)
-},"Group ID cannot be blank when there's no reciever ID")
+  expireAt: z.date().optional().default(() => new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)).optional(),
+  type: z.enum(['message', 'edit', 'delete']).default('message'),
+  messageId: z.instanceof(ObjectId).optional()
+}).refine((data) => (!!data.groupId && !data.receiverId) || (!data.groupId && !!data.receiverId),"Group ID cannot be blank when there's no reciever ID")
+.refine(data => !(data.type !== 'message' || !!data.messageId), "Message ID cannot be blank when type is not 'message'")
+.refine(data => !(data.type === 'message' || data.type === 'edit') || data.payload, "Payload cannot be empty when type is 'message' or 'edit'")
 
 export type Message = z.infer<typeof MessageSchema>;
 
@@ -44,3 +47,13 @@ export const GroupSchema = z.object({
 })
 
 export type Group = z.infer<typeof GroupSchema>
+
+export const EventSchema = z.object({
+  _id: z.instanceof(ObjectId).optional(),
+  createdBy: z.string(),
+  recieverId: z.string(),
+  type: z.enum([EVENTS.LASTREAD]).default(EVENTS.LASTREAD).optional(),
+  timestamp: z.date().optional().default(new Date())
+})
+
+export type Event = z.infer<typeof EventSchema>

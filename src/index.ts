@@ -1,7 +1,7 @@
 import {createServer} from 'node:http'
 import express, { type RequestHandler } from 'express'
 import { config } from 'dotenv'
-import { connectDb, usersDb } from './services/dbService.ts'
+import { connectDb } from './services/dbService.ts'
 import { restAuthMiddleware, type AuthenticatedRequest } from './services/authService.ts'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'

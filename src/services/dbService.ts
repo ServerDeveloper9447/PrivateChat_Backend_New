@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import type { User, Message } from "../schemas/dbSchemas.ts";
+import { type User, type Message, type Event } from "../schemas/dbSchemas.ts";
 
 export const dbClient = new MongoClient(process.env.MONGODB_URI as string,{
     serverApi:{
@@ -11,6 +11,7 @@ export const dbClient = new MongoClient(process.env.MONGODB_URI as string,{
 export const db = dbClient.db('Main')
 export const usersDb = db.collection<User>('Users')
 export const messagesDb = db.collection<Message>('Messages')
+export const eventsDb = db.collection<Event>('Events')
 
 export function connectDb(skipUserDbClean: boolean = false) {
     dbClient.connect()
