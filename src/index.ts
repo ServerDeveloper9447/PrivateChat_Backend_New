@@ -1,7 +1,6 @@
 import express, { RequestHandler } from 'express'
 import { config } from 'dotenv'
 import {createServer} from 'node:http'
-import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { readdirSync } from 'node:fs'
 import { ApiRoute } from './schemas/schemas.ts'
@@ -29,6 +28,7 @@ export const EVENTS = {
     USERONLINE: 'user:online',
     USEROFFLINE: 'user:offline',
 }
+Object.freeze(EVENTS)
 
 const routesPath = path.join(__dirname, '/routes')
 const files = readdirSync(routesPath)
