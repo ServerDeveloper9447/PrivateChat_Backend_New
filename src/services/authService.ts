@@ -1,4 +1,5 @@
-import { verify, type JwtPayload } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 import type { ExtendedError } from "socket.io";
 import type { AuthenticatedSocket } from "./wsService.ts";
 import { usersDb } from "./dbService.ts";
@@ -10,13 +11,23 @@ export interface AuthenticatedRequest extends express.Request {
     user: User
 }
 
+export enum TOKEN_TYPES {
+    ACCESS_TOKEN = 1,
+    REFRESH_TOKEN = 2
+}
+
+const token_regex = /^Bearer\s\S+/gmi;
+
 export const wssAuthMiddleware = async (socket: AuthenticatedSocket, next: (err?: ExtendedError) => void) => {
-    const token: string = socket.handshake.auth.token
-    if(!token) return next(new Error("No auth token provided."));
+    let token: string = socket.handshake.auth.token
+    if(!token.match(token_regex)) return next(new Error("No auth token provided."));
+    token = token.split(" ")[1];
     try {
         const decoded = verify(token, process.env.JWT_KEY as string) as JwtPayload
+        if(Number(decoded.type) != TOKEN_TYPES.ACCESS_TOKEN) return next(new Error("Invalid token type"));
         const user = await usersDb.findOne({userId: decoded.userId})
         if(!user) return next(new Error("No user found with the id"));
+        if(!user.refreshToken) return next(new Error("Cannot use access_token without logging in."));
         socket.user = user
         next()
     } catch(err: any) {
@@ -32,12 +43,15 @@ export const wssAuthMiddleware = async (socket: AuthenticatedSocket, next: (err?
 }
 
 export const restAuthMiddleware = async (req: AuthenticatedRequest, res: express.Response, next: NextFunction) => {
-    const token = req.headers.authorization as string
-    if(!token) return res.status(401).send({status:401, message: "Unauthorized"});
+    let token = req.headers.authorization as string
+    if(!token.match(token_regex)) return res.status(401).send({status:401, message: "Unauthorized"});
+    token = token.split(" ")[1]
     try {
         const decoded = verify(token, process.env.JWT_KEY as string) as JwtPayload
+        if(Number(decoded.type) != TOKEN_TYPES.ACCESS_TOKEN) return res.status(400).send({status:400, message: "Invalid token type"});
         const user = await usersDb.findOne({userId: decoded.userId})
         if(!user) return res.status(404).send({status:404, message: "Cannot find user"});
+        if(!user.refreshToken) return res.status(401).send({status: 401, message: "Cannot use access_token without logging in."});
         req.user = user
         next()
     } catch(err: any) {

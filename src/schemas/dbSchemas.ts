@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
-import { EVENTS } from '../services/wsService.ts';
+import { EVENTS } from '../index.ts';
 
 export const UserSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
@@ -11,7 +11,9 @@ export const UserSchema = z.object({
   avatarUrl: z.string().url('Invalid URL format').optional(),
   lastActive: z.date().optional(),
   banned: z.boolean().optional().default(false),
-  isOnline: z.boolean().optional().default(false)
+  isOnline: z.boolean().optional().default(false),
+  password: z.string(),
+  refreshToken: z.string().optional()
 });
 
 export type User = z.infer<typeof UserSchema>;

@@ -9,7 +9,7 @@ const obj = z.object({
 
 const route:ApiRoute = {
     method: 'patch',
-    path: '/users',
+    path: '/api/users',
     run: (req, res) => {
         const parsed = obj.safeParse(req.body)
         if(!parsed.success) return res.status(400).send({status:400, message: "Bad request body object"});

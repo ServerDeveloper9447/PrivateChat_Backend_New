@@ -13,14 +13,11 @@ export const usersDb = db.collection<User>('Users')
 export const messagesDb = db.collection<Message>('Messages')
 export const eventsDb = db.collection<Event>('Events')
 
-export function connectDb(skipUserDbClean: boolean = false) {
+export function connectDb(callback: () => void, skipUserDbClean: boolean = false) {
     dbClient.connect()
-    .then(() => console.log("Connected to DB"))
-    .catch(() => {
-        console.error("Cannot connect to database")
-        process.exit(1)
-    })
-    usersDb.bulkWrite([{
+    .then(() => {
+        console.log("Connected to DB")
+        usersDb.bulkWrite([{
         "updateMany": {
             "filter": {},
             "update": {
@@ -31,7 +28,10 @@ export function connectDb(skipUserDbClean: boolean = false) {
             }
         }
     }])
-    .then(() => console.log("User database re-init complete"))
+    .then(() => {
+        console.log("User database re-init complete")
+        callback()
+    })
     .catch(() => {
         if(skipUserDbClean) {
             console.error("Cannot re-init user db. Please check your access. Skipping safe exit.")
@@ -39,5 +39,10 @@ export function connectDb(skipUserDbClean: boolean = false) {
             console.error("Cannot re-init user db. Please check your access.")
             process.exit(1)
         }
+    })
+    })
+    .catch(() => {
+        console.error("Cannot connect to database")
+        process.exit(1)
     })
 }

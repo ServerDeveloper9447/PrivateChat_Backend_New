@@ -1,0 +1,21 @@
+### Login
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "username": "user",
+    "password": "pass"
+}
+
+
+### Refresh
+POST http://localhost:3000/refreshToken
+Content-Type: application/json
+
+{
+    "refresh_token": ""
+}
+
+### Logout
+POST http://localhost:3000/api/users/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJ0eXBlIjoxLCJpYXQiOjE3NTE4MjA2NTAsImV4cCI6MTc1MTkwNzA1MH0.rOOSsUiQTGIJSb49isjqsyQ57EqwIpnjemxP9aq3GI4

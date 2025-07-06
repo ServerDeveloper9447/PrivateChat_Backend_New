@@ -1,8 +1,9 @@
 import { z } from "zod";
 import type { ApiRoute } from "../schemas/schemas.ts";
 import { messagesDb } from "../services/dbService.ts";
-import { EVENTS, io, socketList } from "../services/wsService.ts";
+import { io, socketList } from "../services/wsService.ts";
 import { deserialize } from "mongodb";
+import { EVENTS } from "../index.ts";
 
 const valid = z.object({
     payload: z.string().min(1, "Payload is required"),
@@ -11,7 +12,7 @@ const valid = z.object({
 
 const route:ApiRoute = {
     method: 'post',
-    path: '/messages',
+    path: '/api/messages',
     run: async (req, res) => {
         const {success, data} = valid.safeParse(req.body)
         if(!success) return res.status(400).send({status:400, message: "Bad request body object"});
@@ -53,3 +54,5 @@ const route:ApiRoute = {
         }
     }
 }
+
+export default route;

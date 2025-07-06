@@ -1,7 +1,8 @@
 import { z } from "zod";
 import type { ApiRoute } from "../schemas/schemas.ts";
-import { EVENTS, io, socketList } from "../services/wsService.ts";
+import { io, socketList } from "../services/wsService.ts";
 import { messagesDb } from "../services/dbService.ts";
+import { EVENTS } from "../index.ts";
 
 const validation = z.object({
     messageId: z.string().transform(v => new Object(v)),
@@ -10,7 +11,7 @@ const validation = z.object({
 
 const route:ApiRoute = {
     method: 'delete',
-    path: '/messages',
+    path: '/api/messages',
     run: (req, res) => {
         const {data, success} = validation.safeParse(req.body)
         if(!success) return res.status(400).send({status:400, message: "Invalid body"});
@@ -46,3 +47,5 @@ const route:ApiRoute = {
         
     }
 }
+
+export default route;
