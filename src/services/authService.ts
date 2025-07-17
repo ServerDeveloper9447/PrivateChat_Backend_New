@@ -56,9 +56,9 @@ export const restAuthMiddleware = async (req: AuthenticatedRequest, res: express
         next()
     } catch(err: any) {
         if(err.name == 'TokenExpiredError') {
-            return res.status(400).send({status:400, message: "Token has been expired"})
+            return res.status(400).send({status:1001, message: "Token has been expired"})
         } else if(err.name == 'JsonWebTokenError') {
-            return res.status(400).send({status:400, message: "Invalid token"})
+            return res.status(400).send({status:1002, message: "Invalid token"})
         } else {
             console.trace(err)
             return res.status(500).send({status:500, message: "Internal server "})
