@@ -54,7 +54,7 @@ export const EventSchema = z.object({
   _id: z.instanceof(ObjectId).optional(),
   createdBy: z.string(),
   recieverId: z.string(),
-  type: z.enum([EVENTS.LASTREAD]).default(EVENTS.LASTREAD).optional(),
+  type: z.enum([EVENTS.LASTREAD, EVENTS.CLEARDATA, EVENTS.LOGOUT]).default(EVENTS.LASTREAD).optional(),
   timestamp: z.date().optional().default(new Date())
 })
 
