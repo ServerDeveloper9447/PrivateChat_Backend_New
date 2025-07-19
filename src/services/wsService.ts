@@ -15,14 +15,14 @@ export const socketList = new Map<string, string>()
 io.use((socket, next) => {
     wssAuthMiddleware(socket as AuthenticatedSocket, next)
 })
-io.on('connection', async (socket) => {
+io.on(EVENTS.CONNECT, async (socket) => {
     const authedSocket = socket as AuthenticatedSocket
     socketList.set(authedSocket.user.userId, authedSocket.id)
     socket.emit(EVENTS.USERONLINE, authedSocket.user.userId)
     usersDb.updateOne({userId: authedSocket.user.userId}, {$set: {isOnline: true, lastActive: new Date()}})
 })
 
-io.on('disconnect', (socket) => {
+io.on(EVENTS.DISCONNECT, (socket) => {
     const authedSocket = socket as AuthenticatedSocket
     socketList.delete(authedSocket.user.userId)
     socket.emit(EVENTS.USEROFFLINE, authedSocket.user.userId)

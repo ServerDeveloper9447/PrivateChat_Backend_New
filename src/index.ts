@@ -17,7 +17,7 @@ export const server = createServer(app)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-export const EVENTS = {
+export const EVENTS: Record<string, string> = {
     MESSAGE: 'user:chat_message',
     MESSAGEEDIT: 'user:chat_message_edit',
     MESSAGEDELETE: 'user:chat_message_delete',
@@ -27,6 +27,8 @@ export const EVENTS = {
     LOGOUT: 'admin:remote_logout',
     USERONLINE: 'user:online',
     USEROFFLINE: 'user:offline',
+    CONNECT: 'user:connect',
+    DISCONNECT: 'user:disconnect'
 }
 Object.freeze(EVENTS)
 
